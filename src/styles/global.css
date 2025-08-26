@@ -1,0 +1,70 @@
+/* global.css - Estilos globales basados en imagen institucional (PDF página 2).
+ * Paleta moderna: Transmite confianza y limpieza para farmacia.
+ * Cumple usabilidad (intuitivo), accesibilidad (contrastes WCAG, responsive).
+ */
+
+:root {
+  --gris-azulado: #E6ECEF; /* Fondo general */
+  --blanco: #FFFFFF; /* Tarjetas, tablas */
+  --azul-profundo: #1A3C5A; /* Encabezados, botones */
+  --gris-suave: #D4D8DB; /* Divisorias */
+  --azul-cian: #2A7B9B; /* Resaltados */
+  --carbon-oscuro: #1F2A44; /* Texto */
+}
+
+body {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  color: var(--carbon-oscuro);
+  background-color: var(--gris-azulado);
+}
+
+button {
+  background-color: var(--azul-profundo);
+  color: var(--blanco);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: var(--azul-cian);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid var(--gris-suave);
+  padding: 12px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+}
+
+/* Estilos específicos para el menú lateral */
+nav a {
+  transition: color 0.3s ease;
+}
+
+nav a:hover {
+  color: var(--azul-cian) !important; /* Hover accesible */
+}
+
+nav a:focus {
+  outline: 2px solid var(--azul-cian);
+  outline-offset: 2px;
+}
