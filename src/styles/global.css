@@ -1,7 +1,4 @@
-/* global.css - Estilos globales basados en imagen institucional (PDF página 2).
- * Paleta moderna: Transmite confianza y limpieza para farmacia.
- * Cumple usabilidad (intuitivo), accesibilidad (contrastes WCAG, responsive).
- */
+
 
 :root {
   --gris-azulado: #E6ECEF; /* Fondo general */
@@ -22,9 +19,9 @@ body {
 button {
   background-color: var(--azul-profundo);
   color: var(--blanco);
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
+  border: flex;
+  padding: 13px 25px;
+  border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
@@ -46,7 +43,7 @@ th, td {
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 30px;
 }
 
 @media (max-width: 768px) {

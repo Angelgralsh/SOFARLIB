@@ -1,6 +1,4 @@
-// Reportes.js - Prototipo Reportes (PDF página 14).
-// Cumple RF6 (reportes consolidados). Historia de usuario: Stock actual, filtros, exportar.
-// Diagrama casos de uso: Informes del sistema.
+
 
 import React, { useState } from 'react';
 

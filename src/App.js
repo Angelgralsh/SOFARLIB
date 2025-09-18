@@ -33,5 +33,5 @@ function App() {
 }
 
 export default App;
-export default NuevaCompra;
-export default NuevaVenta;
+//export default NuevaCompra;
+//export default NuevaVenta;

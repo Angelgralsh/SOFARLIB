@@ -1,11 +1,10 @@
-// Dashboard.js - Prototipo Panel Principal (PDF página 10).
-// Cumple historias de usuario: Resumen inventario, alertas stock/vencimiento (RF4).
-// Diagrama casos de uso: Panel principal con acciones rápidas.
+// Dashboard.js - Prototipo Panel Principal 
+
 
 import React from 'react';
 
 function Dashboard() {
-  // Datos simulados (futuro: API para datos reales, PDF página 8).
+  // Datos simulados 
   const totalMedicamentos = 150;
   const alertasStock = 5;
   const alertasVencimiento = 3;

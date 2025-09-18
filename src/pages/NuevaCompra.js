@@ -1,5 +1,4 @@
-// NuevaCompra.js - Prototipo Nueva Compra (PDF página 13).
-// Cumple RF1 (registro entradas), RF2 (fechas caducidad). Diagrama casos de uso: Nueva compra con múltiples medicamentos.
+
 
 import React, { useState } from 'react';
 

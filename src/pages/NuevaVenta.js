@@ -1,7 +1,4 @@
-// NuevaVenta.js - Prototipo Nueva Venta (PDF página 12).
-// Cumple RF5 (registro ventas con detalles, cantidad, precio). Historia de usuario: Generar factura.
-// Diagrama casos de uso: Nueva venta con búsqueda.
-// Incluye depuración para identificar fallos en renderizado o eventos.
+
 
 import React, { useState } from 'react';
 
@@ -14,7 +11,7 @@ function NuevaVenta() {
 
   const handleBuscar = () => {
     console.log('Buscando:', busqueda); // Depuración
-    // Simulada (futuro: API para búsqueda por nombre/código).
+    // Simulada 
   };
 
   const handleCalcularTotal = () => {

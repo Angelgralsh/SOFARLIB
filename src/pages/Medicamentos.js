@@ -1,11 +1,9 @@
-// Medicamentos.js - Prototipo Gestión de Medicamentos (PDF página 11).
-// Cumple RF1 (gestión inventario), RF3 (búsqueda). Diagrama clases: Medicamento con atributos (nombre, código, stock).
-// Estándares: Tabla accesible con acciones.
+
 
 import React from 'react';
 
 function Medicamentos() {
-  // Datos simulados (futuro: API para listado real).
+  // Datos simulados 
   const meds = [
     { nombre: 'Aspirina', codigo: '001', stock: 100, vencimiento: '2026-01-01', lote: 'L123', lab: 'Bayer', gramos: '500mg' },
     { nombre: 'Paracetamol', codigo: '002', stock: 50, vencimiento: '2025-12-15', lote: 'L456', lab: 'Pfizer', gramos: '1g' },
