@@ -65,3 +65,123 @@ nav a:focus {
   outline: 2px solid var(--azul-cian);
   outline-offset: 2px;
 }
+/* Estilos para el login ergonómico */
+.login-container {
+  max-width: 400px;
+  margin: 60px auto;
+  background: var(--gris-azulado);
+  padding: 32px 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #0001;
+}
+
+.login-container h2 {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.login-form input {
+  padding: 10px;
+  border: 1px solid var(--gris-suave);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.login-form button {
+  margin-top: 12px;
+  padding: 12px;
+  font-size: 1rem;
+  border-radius: 8px;
+  background: var(--azul-profundo);
+  color: var(--blanco);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.login-form button:hover {
+  background: var(--azul-cian);
+}
+
+.login-container a {
+  color: #6c2eb6;
+  text-decoration: underline;
+}
+/* Mejor alineación y centrado del login */
+.login-container {
+  max-width: 400px;
+  margin: 60px auto;
+  background: var(--gris-azulado);
+  padding: 32px 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #0001;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-container h2 {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+}
+
+.form-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.login-form input {
+  padding: 10px;
+  border: 1px solid var(--gris-suave);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.login-form button {
+  margin-top: 12px;
+  padding: 12px 32px;
+  font-size: 1rem;
+  border-radius: 8px;
+  background: var(--azul-profundo);
+  color: var(--blanco);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.login-form button:hover {
+  background: var(--azul-cian);
+}
+
+.login-form p {
+  width: 100%;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.login-container a {
+  color: #6c2eb6;
+  text-decoration: underline;
+}
