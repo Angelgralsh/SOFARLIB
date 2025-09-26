@@ -3,6 +3,7 @@ import api from '../api';
 
 function Medicamentos() {
   const [medicamentos, setMedicamentos] = useState([]);
+  const [medicamentosOriginales, setMedicamentosOriginales] = useState([]); // Datos originales
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [q, setQ] = useState("");
@@ -17,7 +18,10 @@ function Medicamentos() {
       setError('');
       
       const data = await api.meds();
+      console.log('Medicamentos cargados:', data); // Para debug
+      
       setMedicamentos(data);
+      setMedicamentosOriginales(data); // Guardar copia original
     } catch (err) {
       console.error('Error cargando medicamentos:', err);
       setError('Error al cargar medicamentos: ' + err.message);
@@ -26,84 +30,178 @@ function Medicamentos() {
     }
   }
 
-  async function buscar() {
-    try {
-      const data = await api.meds(q);
-      setMedicamentos(data);
-    } catch (e) { alert(e.message); }
-  }
+  // Búsqueda local (más rápida)
+  function buscarLocal() {
+    if (!q.trim()) {
+      setMedicamentos(medicamentosOriginales);
+      return;
+    }
 
-  if (loading) {
-    return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
-        <p>Cargando medicamentos...</p>
-      </div>
+    const termino = q.toLowerCase().trim();
+    const resultados = medicamentosOriginales.filter(med => 
+      (med.nombre && med.nombre.toLowerCase().includes(termino)) ||
+      (med.codigo && med.codigo.toLowerCase().includes(termino)) ||
+      (med.laboratorio && med.laboratorio.toLowerCase().includes(termino))
     );
+
+    console.log('Búsqueda local:', termino, 'Resultados:', resultados.length); // Para debug
+    setMedicamentos(resultados);
   }
 
-  if (error) {
+  // Búsqueda en servidor (alternativa)
+  async function buscarServidor() {
+    try {
+      setError('');
+      setLoading(true);
+      
+      const data = await api.meds(q);
+      console.log('Búsqueda servidor:', q, 'Resultados:', data.length); // Para debug
+      
+      setMedicamentos(data);
+    } catch (e) { 
+      console.error('Error en búsqueda servidor:', e);
+      setError('Error en búsqueda: ' + e.message);
+      // Fallback a búsqueda local
+      buscarLocal();
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Función principal de búsqueda
+  function buscar() {
+    // Primero intentar búsqueda local (más rápida)
+    buscarLocal();
+    
+    // Opcionalmente también buscar en servidor
+    // buscarServidor();
+  }
+
+  // Búsqueda en tiempo real mientras escribes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      buscarLocal();
+    }, 300); // Esperar 300ms después de dejar de escribir
+
+    return () => clearTimeout(timer);
+  }, [q, medicamentosOriginales]);
+
+  // Función para buscar al presionar Enter
+  function handleKeyPress(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      buscar();
+    }
+  }
+
+  // Función para limpiar búsqueda
+  function limpiarBusqueda() {
+    setQ('');
+    setMedicamentos(medicamentosOriginales);
+  }
+
+  if (loading && medicamentos.length === 0) {
+    return <div className="loading">Cargando medicamentos...</div>;
+  }
+
+  if (error && medicamentos.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '50px', color: 'red' }}>
-        <p>{error}</p>
-        <button onClick={cargarMedicamentos}>Reintentar</button>
+      <div className="error-container">
+        <div className="alert alert-error">{error}</div>
+        <button onClick={cargarMedicamentos} className="btn btn-primary">
+          Reintentar
+        </button>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Inventario de Medicamentos</h2>
-      <div style={{marginBottom: 12}}>
-        <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar por nombre o código" />
-        <button onClick={buscar}>Buscar</button>
+    <div className="medicamentos-container">
+      <h2 className="card-title">Inventario de Medicamentos</h2>
+      
+      <div className="search-bar">
+        <input 
+          className="search-input"
+          type="text"
+          value={q} 
+          onChange={e => setQ(e.target.value)} 
+          onKeyPress={handleKeyPress}
+          placeholder="Buscar por nombre, código o laboratorio..." 
+        />
+        <button onClick={buscar} className="btn btn-primary">
+          🔍 Buscar
+        </button>
+        {q && (
+          <button onClick={limpiarBusqueda} className="btn btn-secondary">
+            🗑️ Limpiar
+          </button>
+        )}
+        <button onClick={cargarMedicamentos} className="btn btn-secondary">
+          🔄 Recargar
+        </button>
       </div>
       
-      {medicamentos.length === 0 ? (
-        <p>No hay medicamentos disponibles</p>
-      ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#f8f9fa' }}>
-              <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'left' }}>Código</th>
-              <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'left' }}>Nombre</th>
-              <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Stock</th>
-              <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'left' }}>Laboratorio</th>
-              <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {medicamentos.map(med => (
-              <tr key={med.id}>
-                <td style={{ border: '1px solid #ddd', padding: '8px', fontFamily: 'monospace' }}>
-                  {med.codigo}
-                </td>
-                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                  {med.nombre}
-                </td>
-                <td style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
-                  <span style={{ 
-                    color: med.stock > med.stock_minimo ? 'green' : 'red',
-                    fontWeight: 'bold'
-                  }}>
-                    {med.stock}
-                  </span>
-                </td>
-                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                  {med.laboratorio}
-                </td>
-                <td style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
-                  <span style={{ 
-                    color: med.activo ? 'green' : 'red',
-                    fontWeight: 'bold'
-                  }}>
-                    {med.activo ? 'Activo' : 'Inactivo'}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {error && (
+        <div className="alert alert-error">{error}</div>
       )}
+      
+      {medicamentos.length === 0 ? (
+        <div className="text-center">
+          <p>No hay medicamentos disponibles</p>
+          {q && <p className="text-muted">No se encontraron resultados para: "<strong>{q}</strong>"</p>}
+        </div>
+      ) : (
+        <div className="table-container">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th className="text-center">Stock</th>
+                <th>Laboratorio</th>
+                <th className="text-center">Precio</th>
+                <th className="text-center">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {medicamentos.map(med => (
+                <tr key={med.id || Math.random()}>
+                  <td className="text-monospace">{med.codigo || 'N/A'}</td>
+                  <td>{med.nombre || 'Sin nombre'}</td>
+                  <td className="text-center">
+                    <span className={med.stock > (med.stock_minimo || 5) ? 'text-success' : 'text-danger'}>
+                      {med.stock || 0}
+                    </span>
+                  </td>
+                  <td>{med.laboratorio || 'N/A'}</td>
+                  <td className="text-center">
+                    <span className="text-success">
+                      {med.precio ? `$${parseFloat(med.precio).toLocaleString('es-CO', { minimumFractionDigits: 2 })}` : '$0.00'}
+                    </span>
+                  </td>
+                  <td className="text-center">
+                    <span className={med.activo ? 'text-success' : 'text-danger'}>
+                      {med.activo ? '✅ Activo' : '❌ Inactivo'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div className="medicamentos-info">
+        <p className="text-muted">
+          Total mostrado: {medicamentos.length} de {medicamentosOriginales.length} medicamentos
+        </p>
+        {q && (
+          <p className="text-muted">
+            Filtro activo: "<strong>{q}</strong>"
+          </p>
+        )}
+        {loading && <p className="text-muted">🔄 Buscando...</p>}
+      </div>
     </div>
   );
 }

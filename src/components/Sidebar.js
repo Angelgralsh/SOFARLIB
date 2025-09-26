@@ -1,27 +1,59 @@
 // src/components/Sidebar.jsx
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-const link = ({ isActive }) => ({
-  padding: '10px 12px',
-  borderRadius: 8,
-  textDecoration: 'none',
-  display: 'block',
-  color: isActive ? '#0b2b4a' : '#173a5e',
-  background: isActive ? '#eaf3ff' : 'transparent',
-});
+function Sidebar() {
+  const navigate = useNavigate();
+  const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
 
-export default function Sidebar() {
+  function handleLogout() {
+    localStorage.removeItem('usuario');
+    localStorage.removeItem('isLoggedIn');
+    navigate('/', { replace: true });
+  }
+
   return (
-    <aside style={{ width: 220, padding: 16, borderRight: '1px solid #e5e5e5', height: '100vh', position: 'sticky', top: 0 }}>
-      <h3 style={{ marginTop: 0 }}>Menú</h3>
-      <nav style={{ display: 'grid', gap: 6 }}>
-        <NavLink to="/dashboard" style={link}>Dashboard</NavLink>
-        <NavLink to="/medicamentos" style={link}>Medicamentos</NavLink>
-        <NavLink to="/compras" style={link}>Compras</NavLink>
-        <NavLink to="/ventas" style={link}>Ventas</NavLink>
-        <NavLink to="/lotes" style={link}>Lotes</NavLink>
+    <div className="sidebar">
+      <div className="sidebar-header">
+        <h3 className="sidebar-title">SOFARLIB</h3>
+        <div className="sidebar-user-info">
+          <p className="sidebar-user-name">{usuario.nombre || 'Usuario'}</p>
+          <small className="sidebar-user-email">{usuario.email}</small>
+          <br />
+          <small className="sidebar-user-role">
+            ({usuario.rol || 'regente'})
+          </small>
+        </div>
+      </div>
+
+      <nav className="sidebar-nav">
+        <Link to="/dashboard" className="sidebar-link">
+          <span className="sidebar-icon">📊</span>
+          Dashboard
+        </Link>
+
+        <Link to="/medicamentos" className="sidebar-link">
+          <span className="sidebar-icon">💊</span>
+          Medicamentos
+        </Link>
+
+        <Link to="/nueva-venta" className="sidebar-link">
+          <span className="sidebar-icon">🛒</span>
+          Ventas
+        </Link>
+
+        <Link to="/nueva-compra" className="sidebar-link">
+          <span className="sidebar-icon">📦</span>
+          Nueva Compra
+        </Link>
       </nav>
-    </aside>
+
+      <button onClick={handleLogout} className="sidebar-logout">
+        🚪 Cerrar Sesión
+      </button>
+    </div>
   );
 }
+
+export default Sidebar;
+

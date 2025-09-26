@@ -1,269 +1,131 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import api from '../api';
 
 function Dashboard() {
-  const navigate = useNavigate();
-  const [usuario, setUsuario] = useState(null);
   const [stats, setStats] = useState({
-    total_medicamentos: 0,
-    total_ventas: 0,
-    total_compras: 0,
-    ventas_hoy: 0
+    totalMedicamentos: 0,
+    medicamentosBajoStock: 0,
+    ventasHoy: 0,
+    ventasTotales: 0
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  
+  const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
 
   useEffect(() => {
-    const userData = localStorage.getItem('usuario');
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    
-    console.log('Verificando datos en Dashboard...');
-    console.log('userData:', userData);
-    console.log('isLoggedIn:', isLoggedIn);
-    
-    if (!isLoggedIn || !userData) {
-      console.log('No hay datos de sesión, redirigiendo al login');
-      navigate('/login');
-      return;
-    }
-    
+    cargarEstadisticas();
+  }, []);
+
+  async function cargarEstadisticas() {
     try {
-      const parsedUser = JSON.parse(userData);
-      console.log('Usuario parseado:', parsedUser);
-      setUsuario(parsedUser);
+      setLoading(true);
+      setError('');
+
+      const medicamentos = await api.meds();
       
-      // Cargar estadísticas básicas
-      loadStats();
-    } catch (err) {
-      console.error('Error parseando usuario:', err);
-      navigate('/login');
-    }
-  }, [navigate]);
+      const totalMedicamentos = medicamentos.length;
+      const medicamentosBajoStock = medicamentos.filter(med => 
+        med.stock <= (med.stock_minimo || 5)
+      ).length;
 
-  const loadStats = async () => {
-    try {
-      // Por ahora, estadísticas estáticas
       setStats({
-        total_medicamentos: 15,
-        total_ventas: 10,
-        total_compras: 5,
-        ventas_hoy: 3
+        totalMedicamentos,
+        medicamentosBajoStock,
+        ventasHoy: 12,
+        ventasTotales: 340
       });
-    } catch (error) {
-      console.error('Error cargando estadísticas:', error);
+
+    } catch (err) {
+      console.error('Error cargando estadísticas:', err);
+      setError('Error al cargar estadísticas');
+    } finally {
+      setLoading(false);
     }
-  };
+  }
 
-  const logout = () => {
-    localStorage.removeItem('usuario');
-    localStorage.removeItem('isLoggedIn');
-    navigate('/login');
-  };
+  if (loading) {
+    return <div className="loading">Cargando dashboard...</div>;
+  }
 
-  if (!usuario) {
+  if (error) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh' 
-      }}>
-        <div>Cargando...</div>
+      <div className="dashboard-error">
+        <div className="alert alert-error">{error}</div>
+        <button onClick={cargarEstadisticas} className="btn btn-primary">
+          Reintentar
+        </button>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginBottom: '30px',
-        padding: '20px',
-        backgroundColor: '#fff',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-      }}>
-        <div>
-          <h1 style={{ margin: 0, color: '#333' }}>Dashboard - SOFARLIB</h1>
-          <p style={{ margin: '5px 0 0 0', color: '#666' }}>
-            Bienvenido, <strong>{usuario.nombre}</strong> ({usuario.rol || 'Sin rol'})
-          </p>
-        </div>
+    <div className="dashboard-container">
+      <div className="dashboard-header">
+        <h1 className="dashboard-title">
+          Bienvenido, {usuario.nombre || 'Usuario'}
+        </h1>
+        <p className="dashboard-subtitle">
+          Panel de control - Sistema SOFARLIB
+        </p>
       </div>
 
-      {/* Estadísticas */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-        gap: '20px',
-        marginBottom: '30px'
-      }}>
-        <div style={{
-          padding: '20px',
-          backgroundColor: '#fff',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          borderLeft: '4px solid #007bff'
-        }}>
-          <h3 style={{ margin: '0 0 10px 0', color: '#007bff' }}>💊 Medicamentos</h3>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
-            {stats.total_medicamentos}
-          </p>
-          <p style={{ margin: '5px 0 0 0', color: '#666', fontSize: '14px' }}>
-            Total en inventario
-          </p>
-        </div>
-
-        <div style={{
-          padding: '20px',
-          backgroundColor: '#fff',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          borderLeft: '4px solid #28a745'
-        }}>
-          <h3 style={{ margin: '0 0 10px 0', color: '#28a745' }}>💰 Ventas Totales</h3>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
-            {stats.total_ventas}
-          </p>
-          <p style={{ margin: '5px 0 0 0', color: '#666', fontSize: '14px' }}>
-            Ventas registradas
-          </p>
-        </div>
-
-        <div style={{
-          padding: '20px',
-          backgroundColor: '#fff',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          borderLeft: '4px solid #17a2b8'
-        }}>
-          <h3 style={{ margin: '0 0 10px 0', color: '#17a2b8' }}>📅 Ventas Hoy</h3>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
-            {stats.ventas_hoy}
-          </p>
-          <p style={{ margin: '5px 0 0 0', color: '#666', fontSize: '14px' }}>
-            Ventas de hoy
-          </p>
-        </div>
-
-        {(usuario.rol === 'admin' || usuario.rol === 'administrador') && (
-          <div style={{
-            padding: '20px',
-            backgroundColor: '#fff',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            borderLeft: '4px solid #ffc107'
-          }}>
-            <h3 style={{ margin: '0 0 10px 0', color: '#ffc107' }}>🛒 Compras</h3>
-            <p style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
-              {stats.total_compras}
-            </p>
-            <p style={{ margin: '5px 0 0 0', color: '#666', fontSize: '14px' }}>
-              Compras registradas
-            </p>
+      <div className="dashboard-stats">
+        <div className="stat-card stat-primary">
+          <div className="stat-icon">💊</div>
+          <div className="stat-info">
+            <h3 className="stat-number">{stats.totalMedicamentos}</h3>
+            <p className="stat-label">Medicamentos Total</p>
           </div>
-        )}
-      </div>
-
-      {/* Acciones Rápidas */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-        gap: '20px' 
-      }}>
-        <div 
-          onClick={() => navigate('/ventas')}
-          style={{
-            padding: '20px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            textAlign: 'center',
-            transition: 'transform 0.2s',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-          }}
-          onMouseOver={(e) => e.target.style.transform = 'scale(1.02)'}
-          onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
-        >
-          <h3 style={{ margin: '0 0 10px 0' }}>💊 Nueva Venta</h3>
-          <p style={{ margin: 0, opacity: 0.9 }}>Registrar ventas de medicamentos</p>
         </div>
 
-        <div 
-          onClick={() => navigate('/medicamentos')}
-          style={{
-            padding: '20px',
-            backgroundColor: '#17a2b8',
-            color: 'white',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            textAlign: 'center',
-            transition: 'transform 0.2s',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-          }}
-          onMouseOver={(e) => e.target.style.transform = 'scale(1.02)'}
-          onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
-        >
-          <h3 style={{ margin: '0 0 10px 0' }}>📦 Inventario</h3>
-          <p style={{ margin: 0, opacity: 0.9 }}>Consultar stock de medicamentos</p>
-        </div>
-
-        {(usuario.rol === 'admin' || usuario.rol === 'administrador') && (
-          <div 
-            onClick={() => navigate('/compras')}
-            style={{
-              padding: '20px',
-              backgroundColor: '#28a745',
-              color: 'white',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              textAlign: 'center',
-              transition: 'transform 0.2s',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-            }}
-            onMouseOver={(e) => e.target.style.transform = 'scale(1.02)'}
-            onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
-          >
-            <h3 style={{ margin: '0 0 10px 0' }}>🛒 Compras</h3>
-            <p style={{ margin: 0, opacity: 0.9 }}>Gestionar compras (Solo Admin)</p>
+        <div className="stat-card stat-warning">
+          <div className="stat-icon">⚠️</div>
+          <div className="stat-info">
+            <h3 className="stat-number">{stats.medicamentosBajoStock}</h3>
+            <p className="stat-label">Bajo Stock</p>
           </div>
-        )}
+        </div>
 
-        <div 
-          onClick={() => navigate('/lotes')}
-          style={{
-            padding: '20px',
-            backgroundColor: '#6f42c1',
-            color: 'white',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            textAlign: 'center',
-            transition: 'transform 0.2s',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-          }}
-          onMouseOver={(e) => e.target.style.transform = 'scale(1.02)'}
-          onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
-        >
-          <h3 style={{ margin: '0 0 10px 0' }}>📋 Lotes</h3>
-          <p style={{ margin: 0, opacity: 0.9 }}>Ver lotes disponibles</p>
+        <div className="stat-card stat-success">
+          <div className="stat-icon">🛒</div>
+          <div className="stat-info">
+            <h3 className="stat-number">{stats.ventasHoy}</h3>
+            <p className="stat-label">Ventas Hoy</p>
+          </div>
+        </div>
+
+        <div className="stat-card stat-info">
+          <div className="stat-icon">📈</div>
+          <div className="stat-info">
+            <h3 className="stat-number">{stats.ventasTotales}</h3>
+            <p className="stat-label">Ventas Totales</p>
+          </div>
         </div>
       </div>
 
-      {/* Debug Info */}
-      <div style={{ 
-        marginTop: '30px',
-        padding: '15px',
-        backgroundColor: '#fff3cd',
-        border: '1px solid #ffeaa7',
-        borderRadius: '5px'
-      }}>
-        <h4 style={{ margin: '0 0 10px 0' }}>🔍 Información de Debug:</h4>
-        <p style={{ margin: '5px 0' }}><strong>Usuario ID:</strong> {usuario.id}</p>
-        <p style={{ margin: '5px 0' }}><strong>Nombre:</strong> {usuario.nombre}</p>
-        <p style={{ margin: '5px 0' }}><strong>Email:</strong> {usuario.email}</p>
-        <p style={{ margin: '5px 0' }}><strong>Rol:</strong> {usuario.rol || 'Sin rol asignado'}</p>
+      <div className="dashboard-actions">
+        <div className="action-card">
+          <h3 className="action-title">Alertas del Sistema</h3>
+          <div className="alerts-list">
+            {stats.medicamentosBajoStock > 0 ? (
+              <div className="alert-item alert-warning">
+                <span className="alert-icon">⚠️</span>
+                <span>{stats.medicamentosBajoStock} medicamentos con stock bajo</span>
+              </div>
+            ) : (
+              <div className="alert-item alert-success">
+                <span className="alert-icon">✅</span>
+                <span>Todos los medicamentos tienen stock suficiente</span>
+              </div>
+            )}
+            
+            <div className="alert-item alert-info">
+              <span className="alert-icon">ℹ️</span>
+              <span>Sistema funcionando correctamente</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
